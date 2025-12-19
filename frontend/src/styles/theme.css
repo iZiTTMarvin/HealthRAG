@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=Source+Serif+4:wght@300;400;600&display=swap");
+
+:root {
+  color-scheme: light;
+  --bg: #f6f3ee;
+  --bg-accent: #efe7dc;
+  --panel: #ffffff;
+  --ink: #20201d;
+  --ink-muted: #5f5a52;
+  --brand: #b24b31;
+  --brand-soft: #e9cbbf;
+  --line: #e3d9cc;
+  --shadow: 0 16px 40px rgba(32, 32, 29, 0.08);
+  --radius: 18px;
+  --font-display: "Source Serif 4", serif;
+  --font-body: "Noto Sans SC", sans-serif;
+}
