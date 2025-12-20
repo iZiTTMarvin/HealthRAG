@@ -9,8 +9,16 @@
 <img src="img/all.png" style="zoom:100%;" />
 
 
-本项目设计了一个基于 RAG 与大模型技术的医疗问答系统，利用 DiseaseKG 数据集与 Neo4j 构建知识图谱，结合 BERT 的命名实体识别和 大模型的意图识别，通过精确的知识检索和问答生成，提升系统在医疗咨询中的性能，解决大模型在医疗领域应用的可靠性问题。
+**HealthRAG 是一个面向医疗场景的智能问答系统，基于 RAG（Retrieval-Augmented Generation）架构与大语言模型技术 构建，旨在提升大模型在医疗咨询任务中的专业性、可解释性与可靠性，缓解通用大模型在医疗领域中存在的幻觉与不确定性问题。**
+在知识层与数据层，系统以 DiseaseKG 医疗数据集 为基础，结合 Neo4j 图数据库 构建结构化医疗知识图谱，对疾病、症状、检查、药物与治疗方案等医学实体及其关系进行系统化建模，为精准知识检索提供高质量的医学先验。
+在语义理解与检索阶段，HealthRAG 采用 BERT 进行命名实体识别（NER），从用户自然语言问题中准确抽取关键医学实体；同时利用 大语言模型的意图识别能力 对用户查询进行语义建模与任务拆解，在知识图谱中执行高相关度、多约束的医学知识检索，实现“先检索、后生成”的可控推理流程。
+在答案生成阶段，系统将检索得到的结构化医学知识与原始用户问题进行融合，作为上下文输入至大语言模型，引导模型在显式医学知识约束下生成回答，从而有效降低无依据生成的风险，提高医疗问答结果的准确性与可信度。
 
+**在系统架构设计上，HealthRAG 采用 FastAPI + React 的前后端分离架构 完成整体重构：**
+后端基于 FastAPI 构建高性能异步服务，负责模型推理、知识检索与业务逻辑调度；
+前端基于 React 实现交互式医疗问答界面，支持多轮对话与结果可视化展示；
+前后端通过标准化 RESTful API 解耦，显著提升系统的工程可扩展性、可维护性与部署灵活性。
+通过将 医疗知识图谱、深度学习模型与大语言模型 深度融合，HealthRAG 探索了一种兼顾理论严谨性与工程实践价值的医疗智能问答解决方案，为大模型在高风险专业领域中的安全应用提供了具有参考意义的技术范式。
 RAG技术：
 
 <img src="img/RAG.png" style="zoom:100%;" />
@@ -37,7 +45,7 @@ RAG技术：
 
 ## :fire:To do
 
-- [x] 增加界面的功能(2024.5.21)：增加了登陆、注册界面(含用户、管理员2个身份)，大模型选择按钮(可选千问和llama)、多窗口对话功能等。
+- [x] **增加界面的功能(2025.5.21)**：增加了登陆、注册界面(含用户、管理员2个身份)，大模型选择按钮(可选千问和llama)、多窗口对话功能等。
 - [x] **动态模型选择(2025.10.25)**：自动读取本地 Ollama 所有模型，支持在侧边栏切换。
 - [x] **硅基流动API支持(2025.10.25)**：支持使用云端模型 (DeepSeek-R1, Qwen2.5-72B 等)。
 - [x] **规则匹配意图识别(2025.10.25)**：对常见问题(“怎么办”、“吃什么”等)使用规则直接匹配，提升响应速度。
@@ -45,7 +53,6 @@ RAG技术：
 - [ ] 更多优化...
 
 ## :rocket: 快速开始
-## :rocket: Quick Start (FastAPI + React)
 
 **Backend**
 
@@ -69,7 +76,7 @@ Frontend proxies `/api` to `http://127.0.0.1:8000` by default.
 ### 1. Python环境配置
 
 **系统要求**：
-- Python 3.10+
+- Python 3.10+（我使用的是3.12）
 - Neo4j 5.x (Community Edition)
 - Ollama (本地模型运行)
 - JDK 17 (Neo4j 依赖)
@@ -78,11 +85,11 @@ Frontend proxies `/api` to `http://127.0.0.1:8000` by default.
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/your-username/RAGQnASystem.git
-cd RAGQnASystem
+git clone https://github.com/iZiTTMarvin/HealthRAG.git
+cd HealthRAG
 
 # 2. 创建虚拟环境
-conda create -n RAGQnASystem python=3.10
+conda create -n RAGQnASystem python=3.12
 conda activate RAGQnASystem
 
 # 3. 安装依赖
@@ -101,12 +108,14 @@ pip install -r requirements.txt
 ```bash
 # 安装 Ollama：https://ollama.ai/download
 
-# 下载推荐模型 (DeepSeek-R1 8B)
-ollama pull deepseek-r1:8b
+# 推荐使用ollama云端模型 (deepseek-v3.1:671b-cloud)
+deepseek-v3.1:671b-cloud
 
-# 或者使用其他模型
-ollama pull qwen2.5:3b
-ollama pull gemma3:4b
+# 或者下载模型 (granite4:tiny-h)
+ollama pull granite4:tiny-h
+
+**尽量不要使用思考模型，本项目并没有设置thinking块**
+
 ```
 
 ### 4. 下载 NER 模型权重
@@ -410,5 +419,5 @@ class Bert_Model(nn.Module):
 
 如果您的复现遇到了困难，请随时联系！
 
-邮箱：zeromakers@outlook.com
+邮箱：2528836683@qq.com
 
