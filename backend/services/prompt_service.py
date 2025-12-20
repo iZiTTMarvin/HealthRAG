@@ -2,9 +2,22 @@ import random
 import re
 from typing import Dict, Optional, Tuple
 
+"""
+提示词 (Prompt) 构造服务
+该模块负责将用户查询、意图识别结果、识别出的实体以及从 Neo4j 知识图谱中检索到的实时数据，
+整合成一个最终发送给大语言模型 (LLM) 的详细 Prompt。
+"""
 
 class PromptService:
     def add_shuxing_prompt(self, entity: str, shuxing: str, client) -> str:
+        """
+        根据实体名称和属性名，从 Neo4j 中查询节点属性值并生成提示词。
+        
+        Args:
+            entity: 实体名称（如“感冒”）
+            shuxing: 节点属性名（如“疾病简介”）
+            client: Neo4j 客户端
+        """
         add_prompt = ""
         if client is None:
             add_prompt += "<提示>"
@@ -13,6 +26,7 @@ class PromptService:
             return add_prompt
 
         try:
+            # 构造 Cypher 查询语句获取节点属性
             sql_q = "match (a:疾病{名称:'%s'}) return a.%s" % (entity, shuxing)
             res = client.run(sql_q).data()[0].values()
             add_prompt += "<提示>"
@@ -30,6 +44,15 @@ class PromptService:
         return add_prompt
 
     def add_lianxi_prompt(self, entity: str, lianxi: str, target: str, client) -> str:
+        """
+        根据实体名称和关系名，从 Neo4j 中查询相关联的节点并生成提示词。
+        
+        Args:
+            entity: 源实体名称
+            lianxi: 关系类型名称
+            target: 目标实体标签
+            client: Neo4j 客户端
+        """
         add_prompt = ""
         if client is None:
             add_prompt += "<提示>"
@@ -38,6 +61,7 @@ class PromptService:
             return add_prompt
 
         try:
+            # 构造 Cypher 查询语句获取关联节点名称
             sql_q = "match (a:疾病{名称:'%s'})-[r:%s]->(b:%s) return b.名称" % (entity, lianxi, target)
             res = client.run(sql_q).data()
             res = [list(data.values())[0] for data in res]
@@ -62,9 +86,22 @@ class PromptService:
         client,
         entities: Dict[str, str],
     ) -> Tuple[str, str, Dict[str, str]]:
+        """
+        整合所有信息生成最终 Prompt。
+        
+        工作逻辑：
+        1. 设定系统角色和约束（指令）。
+        2. 如果识别到症状但未识别到具体疾病，尝试通过症状反查可能得疾病。
+        3. 根据识别出的意图关键词（response 参数），去知识图谱检索对应的属性或关系。
+        4. 整合用户原始问题。
+        5. 添加最后的质量控制注意点。
+        """
         yitu = []
+        # 系统核心指令：要求模型完全基于给定的提示回答
         prompt = "<指令>你是一个医疗问答机器人，你需要根据给定的提示回答用户的问题。请注意，你的全部回答必须完全基于给定的提示，不可自由发挥。如果根据提示无法给出答案，立刻回答“根据已知信息无法回答该问题”。</指令>"
         prompt += "<指令>请你仅针对医疗类问题提供简洁和专业的回答。如果问题不是医疗相关的，你一定要回答“我只能回答医疗相关的问题。”，以明确告知你的回答限制。</指令>"
+        
+        # 症状反向推理疾病
         if "疾病症状" in entities and "疾病" not in entities:
             if client is not None:
                 try:
@@ -84,7 +121,10 @@ class PromptService:
                 prompt += "<提示>用户有%s的情况，但Neo4j数据库未连接，无法查询相关疾病信息。</提示>" % (
                     entities["疾病症状"]
                 )
+        
         pre_len = len(prompt)
+        
+        # 根据意图关键词触发对应的知识库查询
         if "简介" in response:
             if "疾病" in entities:
                 prompt += self.add_shuxing_prompt(entities["疾病"], "疾病简介", client)
@@ -141,6 +181,8 @@ class PromptService:
             if "疾病" in entities:
                 prompt += self.add_lianxi_prompt(entities["疾病"], "疾病并发疾病", "疾病", client)
                 yitu.append("查询疾病并发疾病")
+        
+        # 特殊处理：药品商查询（反向关系）
         if "生产商" in response:
             if client is not None and "药品" in entities:
                 try:
@@ -161,11 +203,16 @@ class PromptService:
                 else:
                     prompt += "<提示>未识别到药品实体，无法查询生产商信息。</提示>"
             yitu.append("查询药物生产商")
+            
+        # 如果没有查询到任何知识库信息
         if pre_len == len(prompt):
+            # 处理问候或通用询问
             if any(word in query.lower() for word in ["你好", "hello", "hi", "介绍", "帮助", "什么"]):
                 prompt += "<提示>用户可能是在问候或询问系统功能。请介绍你是一个专业的医疗RAG问答系统，可以回答医疗相关问题，包括疾病简介、症状、治疗方法、药物信息等。请鼓励用户提出具体的医疗问题。</提示>"
             else:
                 prompt += "<提示>提示：知识库异常，没有相关信息！请你直接回答“根据已知信息无法回答该问题”！</提示>"
+        
+        # 整合用户问题和最终约束
         prompt += f"<用户问题>{query}</用户问题>"
         prompt += "<注意>现在你已经知道给定的“<提示></提示>”和“<用户问题></用户问题>”了,你要极其认真的判断提示里是否有用户问题所需的信息，如果没有相关信息，你必须直接回答“根据已知信息无法回答该问题”。</注意>"
         prompt += "<注意>你一定要再次检查你的回答是否完全基于“<提示></提示>”的内容，不可产生提示之外的答案！换而言之，你的任务是根据用户的问题，将“<提示></提示>”整理成有条理、有逻辑的语句。你起到的作用仅仅是整合提示的功能，你一定不可以利用自身已经存在的知识进行回答，你必须从提示中找到问题的答案！</注意>"
@@ -173,5 +220,8 @@ class PromptService:
         return prompt, "、".join(yitu), entities
 
     def extract_knowledge(self, prompt: str) -> str:
+        """
+        从生成的 Prompt 中提取所有被 <提示> 标签包围的内容，用于前端展示数据来源。
+        """
         knowledge = re.findall(r"<提示>(.*?)</提示>", prompt)
         return "\n".join([f"提示{idx + 1}, {kn}" for idx, kn in enumerate(knowledge) if len(kn) >= 3])
