@@ -140,8 +140,7 @@ python build_up_graph.py --website http://localhost:7474 --user neo4j --password
 
 ```bash
 # 后端
-cd backend
-uvicorn main:app --reload
+python -m uvicorn backend.main:app --reload
 
 # 前端（新终端）
 cd frontend

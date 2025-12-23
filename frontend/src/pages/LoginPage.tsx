@@ -57,7 +57,7 @@ export default function LoginPage() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-active flex items-center justify-center shadow-lg shadow-primary/20 mb-4">
               <Activity className="text-white" size={24} />
             </div>
-            <h1 className="text-3xl font-bold text-text-main mb-2">欢迎回来</h1>
+            <h1 className="text-3xl font-bold text-text-main mb-2">Hi！欢迎回来</h1>
             <p className="text-text-muted">登录 HealthRAG 智能医疗问答系统</p>
           </div>
 
@@ -168,7 +168,7 @@ export default function LoginPage() {
                 <div>
                   <h3 className="font-semibold text-text-main mb-1">个性化问答体验</h3>
                   <p className="text-sm text-text-muted leading-relaxed">
-                    支持本地 Ollama 与云端大模型，多窗口并行对话，实时流式响应。
+                    支持本地 Ollama 与云端大模型（硅基流动），支持多窗口对话，实时流式响应。
                   </p>
                 </div>
               </div>

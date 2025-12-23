@@ -62,7 +62,7 @@ export default function ChatWindow({
       <div className="p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8">
         <div className="max-w-4xl mx-auto relative">
           <motion.div 
-            className="relative rounded-2xl border border-slate-200 bg-white shadow-soft overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
+            className="flex items-stretch rounded-2xl border border-slate-200 bg-white shadow-soft overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -73,12 +73,12 @@ export default function ChatWindow({
               onKeyDown={handleKeyDown}
               placeholder="请输入您的医疗问题..."
               disabled={disabled}
-              className="w-full max-h-40 p-4 pr-14 resize-none focus:outline-none text-sm leading-relaxed text-text-main placeholder:text-text-light bg-transparent custom-scrollbar"
+              className="flex-1 max-h-40 p-4 resize-none focus:outline-none text-sm leading-relaxed text-text-main placeholder:text-text-light bg-transparent custom-scrollbar"
               rows={1}
-              style={{ minHeight: "60px" }}
+              style={{ minHeight: "45px" }}
             />
             
-            <div className="absolute right-2 bottom-2">
+            <div className="flex items-center justify-center p-2">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -100,7 +100,7 @@ export default function ChatWindow({
             </div>
           </motion.div>
           <div className="text-center mt-2">
-             <span className="text-[10px] text-text-light">内容由 AI 生成，仅供参考，不能替代专业医疗建议。</span>
+             <span className="text-[16px] text-text-light">内容由 AI 生成，仅供参考，不能替代专业医疗建议。</span>
           </div>
         </div>
       </div>
