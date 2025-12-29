@@ -16,6 +16,9 @@ models/
 *.safetensors
 *.onnx
 
+# AI / spec workflow artifacts
+.claude/
+.spec-workflow/
 
 # 忽略前端构建产物 & 依赖
 frontend/node_modules/
