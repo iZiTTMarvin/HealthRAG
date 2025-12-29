@@ -359,57 +359,41 @@ class Bert_Model(nn.Module):
 
 登陆界面如下图所示：
 
-<img src="img/login.png" style="zoom:100%;" />
+<img src="img/登录.png" style="zoom:100%;" />
 
 *Screenshot pending update.*
 
 注册界面如下图所示：
 
-<img src="img/register.png" style="zoom:100%;" />
+<img src="img/注册.png" style="zoom:100%;" />
 
 *Screenshot pending update.*
 
 管理员登陆界面如下图所示：
 
-<img src="img/admin.png" style="zoom:70%;" />
+<img src="img/管理员进入界面.png" style="zoom:70%;" />
 
+<img src="img/管理员进入界面2.png" style="zoom:70%;" />
 *Screenshot pending update.*
 
 用户登陆界面如下图所示：
 
-<img src="img/user.png" style="zoom:70%;" />
+<img src="img/用户登录进入界面.png" style="zoom:70%;" />
 
 *Screenshot pending update.*
 
 几个运行例子：
 
-<img src="img/e1.png" style="zoom:40%;" />
+<img src="img/举例子1.png" style="zoom:40%;" />
 
 *Screenshot pending update.*
 
-<img src="img/e2.png" style="zoom:40%;" />
+<img src="img/举例子2.png" style="zoom:40%;" />
 
 *Screenshot pending update.*
 
-<img src="img/e3.png" style="zoom:40%;" />
+<img src="img/举例子3.png" style="zoom:40%;" />
 
-*Screenshot pending update.*
-
-<img src="img/e4.png" style="zoom:40%;" />
-
-*Screenshot pending update.*
-
-<img src="img/e5.png" style="zoom:40%;" />
-
-*Screenshot pending update.*
-
-<img src="img/e6.png" style="zoom:40%;" />
-
-*Screenshot pending update.*
-
-<img src="img/e7.png" style="zoom:40%;" />
-
-*Screenshot pending update.*
 
 ## 未来工作
 
