@@ -17,12 +17,12 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
 
-
+# 登录api
 @router.post("/login")
 def login(payload: LoginRequest):
     return auth_service.login(payload.username, payload.password)
 
-
+# 注册api
 @router.post("/register")
 def register(payload: RegisterRequest):
     return auth_service.register(payload.username, payload.password)

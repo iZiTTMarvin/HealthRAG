@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ChatWindow from "../components/ChatWindow";
 import Sidebar from "../components/Sidebar";
 import SettingsModal from "../components/SettingsModal";
+import KnowledgeGraphModal from "../components/KnowledgeGraphModal";  // 新增
 import { useAuth } from "../contexts/AuthContext";
 import { streamChat } from "../services/chatApi";
 import { fetchModels } from "../services/modelApi";
@@ -31,9 +32,9 @@ const createWindow = (index: number): ChatWindowState => ({
 export default function ChatPage() {
   // 从 Context 中获取用户信息和状态设置函数
   const { auth, setAuth } = useAuth();
-  
+
   // --- 状态定义 ---
-  
+
   // 所有的对话窗口列表
   const [windows, setWindows] = useState<ChatWindowState[]>([createWindow(0)]);
   // 当前正在查看的窗口 ID
@@ -42,7 +43,9 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // 控制设置弹窗是否显示
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+  // 控制知识图谱模态框是否显示 - 新增
+  const [isGraphModalOpen, setIsGraphModalOpen] = useState(false);
+
   // 存储从后端获取的可用模型列表
   const [models, setModels] = useState({ local: [], siliconflow: [] } as {
     local: string[];
@@ -58,12 +61,14 @@ export default function ChatPage() {
   const [neo4jStatus, setNeo4jStatus] = useState({ connected: false, error: null as string | null });
   // Neo4j 数据库密码
   const [neo4jPassword, setNeo4jPassword] = useState("");
-  
+
+  //const [neo4jShow,setNeo4jShow] = useState 
+
   // 调试辅助信息显示开关
   const [showEntities, setShowEntities] = useState(true); // 显示识别出的实体
   const [showIntent, setShowIntent] = useState(true);     // 显示意图识别结果
   const [showPrompt, setShowPrompt] = useState(false);     // 显示发送给 LLM 的完整 Prompt
-  
+
   // 记录哪些窗口正在接收流式数据，用于禁用发送按钮
   const [streamingIds, setStreamingIds] = useState<string[]>([]);
 
@@ -92,7 +97,9 @@ export default function ChatPage() {
    * 副作用：组件挂载后检查数据库连接状态
    */
   useEffect(() => {
-    fetchNeo4jStatus().then(setNeo4jStatus);
+    fetchNeo4jStatus().then((status) =>
+      setNeo4jStatus({ connected: status.connected, error: status.error ?? null })
+    );
   }, []);
 
   /**
@@ -118,7 +125,7 @@ export default function ChatPage() {
     const windowId = activeId;
     const userId = crypto.randomUUID();
     const assistantId = crypto.randomUUID();
-    
+
     // 1. 在 UI 上即时显示用户消息，并添加一个助手消息占位符
     setWindows((prev) =>
       prev.map((window) => {
@@ -235,12 +242,13 @@ export default function ChatPage() {
           });
         }}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenKnowledgeGraph={() => setIsGraphModalOpen(true)}  // 新增
       />
 
       {/* 主聊天区域 */}
       <main className="flex-1 flex flex-col h-full relative z-10">
         <header className="h-16 border-b border-slate-100 bg-white/50 backdrop-blur-sm flex items-center justify-between px-6 flex-shrink-0">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             key={activeWindow?.id}
@@ -287,6 +295,12 @@ export default function ChatPage() {
           setShowIntent(next.showIntent);
           setShowPrompt(next.showPrompt);
         }}
+      />
+
+      {/* 知识图谱可视化模态框 - 新增 */}
+      <KnowledgeGraphModal
+        isOpen={isGraphModalOpen}
+        onClose={() => setIsGraphModalOpen(false)}
       />
     </div>
   );

@@ -1,11 +1,11 @@
 
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { 
-  MessageSquarePlus, 
-  LogOut, 
-  Settings, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  MessageSquarePlus,
+  LogOut,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
   Database,
   Server,
   Cpu,
@@ -13,7 +13,8 @@ import {
   Shield,
   MessageSquare,
   Activity,
-  ChevronDown
+  ChevronDown,
+  Network
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "./ChatMessage";
@@ -28,20 +29,21 @@ interface SidebarProps {
   onNewWindow: () => void;
   user: { username: string; role: string } | null;
   onLogout: () => void;
-  
+
   // Model & Connection Props
   models: { local: string[]; siliconflow: string[] };
   modelSource: "local" | "siliconflow";
   modelName: string;
   apiKey: string;
   neo4jStatus: { connected: boolean; error: string | null };
-  
+
   // Handlers
   onChangeModelSource: (source: "local" | "siliconflow") => void;
   onChangeModelName: (name: string) => void;
   onChangeApiKey: (key: string) => void;
   onConnectNeo4j: () => void;
   onOpenSettings: () => void;
+  onOpenKnowledgeGraph: () => void;  // 新增：打开知识图谱
 }
 
 export default function Sidebar({
@@ -62,9 +64,10 @@ export default function Sidebar({
   onChangeModelName,
   onChangeApiKey,
   onConnectNeo4j,
-  onOpenSettings
+  onOpenSettings,
+  onOpenKnowledgeGraph  // 新增
 }: SidebarProps) {
-  
+
   const sidebarVariants: Variants = {
     open: { width: 300, transition: { type: "spring", stiffness: 300, damping: 30 } },
     closed: { width: 80, transition: { type: "spring", stiffness: 300, damping: 30 } }
@@ -88,7 +91,7 @@ export default function Sidebar({
       {/* Header / Brand */}
       <div className="p-6 flex items-center">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-active flex items-center justify-center shadow-lg shadow-primary/20 flex-shrink-0">
-           <Activity className="text-white" size={24} />
+          <Activity className="text-white" size={24} />
         </div>
         <AnimatePresence>
           {isOpen && (
@@ -107,14 +110,14 @@ export default function Sidebar({
 
       {/* User Info Card */}
       <div className="px-4 mb-6">
-        <motion.div 
+        <motion.div
           className={cn(
             "rounded-2xl bg-surface-background p-3 flex items-center transition-all",
             !isOpen && "justify-center bg-transparent p-0"
           )}
         >
           <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary flex-shrink-0">
-             {user?.role === "admin" ? <Shield size={20} /> : <User size={20} />}
+            {user?.role === "admin" ? <Shield size={20} /> : <User size={20} />}
           </div>
           {isOpen && (
             <div className="ml-3 overflow-hidden">
@@ -144,6 +147,22 @@ export default function Sidebar({
         </motion.button>
       </div>
 
+      {/* Knowledge Graph Button - 新增知识图谱入口 */}
+      <div className="px-4 mb-4">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onOpenKnowledgeGraph}
+          className={cn(
+            "w-full h-12 rounded-xl bg-gradient-to-r from-secondary to-secondary-hover text-white flex items-center justify-center shadow-lg shadow-secondary/20 hover:shadow-secondary/30 transition-all",
+            !isOpen && "w-10 h-10 rounded-full p-0"
+          )}
+        >
+          <Network size={20} />
+          {isOpen && <span className="ml-2 font-medium">知识图谱</span>}
+        </motion.button>
+      </div>
+
       {/* History List */}
       <div className="flex-1 overflow-y-auto px-4 space-y-2 custom-scrollbar">
         {isOpen && <div className="text-xs font-semibold text-text-light mb-2 px-2">历史记录</div>}
@@ -156,8 +175,8 @@ export default function Sidebar({
             onClick={() => onSelectWindow(window.id)}
             className={cn(
               "w-full p-3 rounded-xl flex items-center text-sm transition-all text-left group",
-              activeId === window.id 
-                ? "bg-white shadow-soft border border-primary/20 text-primary" 
+              activeId === window.id
+                ? "bg-white shadow-soft border border-primary/20 text-primary"
                 : "text-text-muted hover:bg-surface-background hover:text-text-main",
               !isOpen && "justify-center px-0"
             )}
@@ -211,7 +230,7 @@ export default function Sidebar({
                   <Cpu size={12} className="mr-1.5" /> 选择模型
                 </label>
                 <div className="relative">
-                  <select 
+                  <select
                     value={modelName}
                     onChange={(e) => onChangeModelName(e.target.value)}
                     className="w-full appearance-none bg-white border border-slate-200 text-text-main text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -223,9 +242,9 @@ export default function Sidebar({
                   <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                 </div>
               </div>
-              
+
               {/* Settings Trigger */}
-              <button 
+              <button
                 onClick={onOpenSettings}
                 className="w-full flex items-center justify-between p-2 rounded-lg text-xs text-text-muted hover:bg-white hover:shadow-sm transition-all"
               >
